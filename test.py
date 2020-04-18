@@ -18,7 +18,6 @@ from keras.preprocessing.image import img_to_array
 from keras.preprocessing import image
 import cv2
 import numpy as np
-import sys
 
 # face classifier. Use absolute path
 face_classifier = cv2.CascadeClassifier(
@@ -73,20 +72,20 @@ while True:
         else: 
             cv2.putText(frame,'No Face Found',(20,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0),3)
         
-        #show the text on the output window
-        cv2.imshow('Emotion Detector', frame)
+    #show the text on the output window
+    cv2.imshow('Emotion Detector', frame)
 
-        # q key for exit
-        # cv2.waitKey(0) is for images and first frame will show on window
-        # cv2.waitKey(1) displays all frames and waits for certian key 
-        # to be pressed 'q' 0xFF = 255 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            # Display exit message
-            print('[EXITING] Quaxis Corporation for Research/Innovation'+
-                  '(c) 2020')
-            break
+    # q key for exit
+    # cv2.waitKey(0) is for images and first frame will show on window
+    # cv2.waitKey(1) displays all frames and waits for certian key 
+    # to be pressed 'q' 0xFF = 255 
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        # Display exit message
+        print('[EXITING] Quaxis Corporation for Research/Innovation'+
+              '(c) 2020')
+        break
     
 # Close webcam and close main program
 capture.release()
 cv2.destroyAllWindows()
-sys.exit()
+
