@@ -1,4 +1,11 @@
-# emotion__detection_keras
+# Latest changes.
+
+**Added realtime_emotion_plotting.py.** Everything that multi_label_probability.py does PLUS realtime plotting (with legend)
+of all emotions over time (t) in seconds and each emotion is plotted with its float(int) values (emotion_angry,emotion_happy, etc...) 
+
+**Added multi_label_probability_test.py.** Shows all emotions and their probabilities. Primary, secondary, inverse emotions [Main emotion detected, secondary emotion is not really working like i want. It is supposed to show a second emotion (2nd probable emotion supposed to be showing. I owuld like to only detect ONE face but haven't had time to work on that. Same accuracy as test.py
+
+## emotion__detection_keras.
 
 Very accurate emotion detection application
 requirements: Keras, Tensorflow, pillow, numpy, cv2, time, os, sys
