@@ -1,3 +1,9 @@
+# see README.md for details
+# Written by Jp Aldama 
+# Quaxis Corporation for Research & Innovation 
+# The Novus Directive 
+# https://github.com/sysad-aldama/emotion__detection_keras/
+
 from keras.models import load_model
 from time import sleep 
 from keras.preprocessing.image import img_to_array
