@@ -10,9 +10,11 @@ from keras.preprocessing.image import img_to_array
 from keras.preprocessing import image
 import cv2
 import numpy as np
+import matplotlib.style as mpl
 import matplotlib.pyplot as plt
 import time
 
+mpl.use('dark_background')
 plt.rcParams['animation.html'] = 'jshtml'
 
 # face classifier. Use absolute path
@@ -41,6 +43,7 @@ capture = cv2.VideoCapture(0)
 primary_label,secondary_label,inverse_label = '','',''
 fig = plt.figure()
 ax= fig.add_subplot(111)
+ax.set_title("Emotion Probability - 5 Emotions")
 i = 0
 t = []
 emotion_neutral = []
@@ -54,7 +57,10 @@ while True:
     labels = []
     gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
     faces = face_classifier.detectMultiScale(gray, 1.3,5)  
-    cv2.rectangle(frame,(0,0),(250,250),(0,0,0),cv2.FILLED) 
+    #cv2.rectangle(frame,(0,0),(250,250),(0,0,0),cv2.FILLED)
+
+    # Fancy rectangle
+    fancy_rectangle.draw_border(frame,(x,y),(x+w,y+h),(255,255,0),1,1,20)
     cv2.putText(frame,' S T A T I S T I C S ', (25,20),cv2.FONT_HERSHEY_SIMPLEX,.5,(255,255,255),1) 
     
     #Draw rectangle on face detected
@@ -96,7 +102,7 @@ while True:
             elif primary_label != class_labels[1]:
                 secondary_label = (f"Secondary emotion: {class_labels[1]}")
                 if secondary_label != inverse_label:
-                    inverse_label = class_labels[pred.argmin()]
+                    inverse_label = (f"Inverse emotion: {class_labels[pred.argmin()]}")
             elif primary_label != class_labels[0]:
                 secondary_label = (f"Secondary emotion: {class_labels[0]}")
                 if inverse_label != secondary_label:
@@ -143,7 +149,7 @@ while True:
                         cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)                       
             
             # Visualize emotions
-            emotion_neutral.append(neutral)
+            emotion_neutral.append(float(neutral))
             emotion_angry.append(float(angry))
             emotion_happy.append(float(happy))
             emotion_sad.append(float(sad))
