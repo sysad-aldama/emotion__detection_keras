@@ -1,0 +1,142 @@
+from keras.models import load_model
+from time import sleep 
+from keras.preprocessing.image import img_to_array
+from keras.preprocessing import image
+import cv2
+import numpy as np
+# face classifier. Use absolute path
+face_classifier = cv2.CascadeClassifier(
+                  '/Users/jpaldama/bin/python/thebig4/machine_learning/'+
+                  'emodetect/emo/haarcascade_frontalface_default.xml')
+
+# classifier (our machine learning model)
+classifier = load_model(
+             '/Users/jpaldama/bin/python/thebig4/machine_learning/emodetect/emo/'+
+             'Emotion_little_vgg.h5')
+
+# our emotion labels
+# NOTE Disgusted and Scared were removed
+class_labels = ['Angry', 'Happy', 'Neutral', 'Sad', 'Surprise']   
+
+# where 0 is your default webcam on your machine. 
+# if you have extra cameras you would like to use
+# change 0 to 1 to use an external camera 
+# refer to cv2 documentation to learn which number 
+# corresponds with cameras 
+# use python help(cv2) 
+
+# I am using integrated webcam so its a 0
+capture = cv2.VideoCapture(0) 
+primary_label,secondary_label,inverse_label = '','',''
+
+
+
+while True:
+    # grab single frame, returns True
+    ret, frame = capture.read()
+    labels = []
+    gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+    faces = face_classifier.detectMultiScale(gray, 1.3,5)  
+    cv2.rectangle(frame,(0,0),(250,250),(0,0,0),cv2.FILLED) 
+    cv2.putText(frame,' S T A T I S T I C S ', (25,20),cv2.FONT_HERSHEY_SIMPLEX,.5,(255,255,255),1) 
+
+    #Draw rectangle on face detected
+    for (x,y,w,h) in faces:
+        cv2.rectangle(frame,(x,y),(x+w,y+h),(180,180,0),1)
+        roi_gray = gray[y:y+h,x:x+w]
+        roi_gray = cv2.resize(roi_gray,(48,48),interpolation=cv2.INTER_AREA)
+        
+        if np.sum([roi_gray]) !=0:
+            roi = roi_gray.astype('float')/255.0
+            roi = img_to_array(roi)
+            roi = np.expand_dims(roi, axis=0)
+
+            # make prediction on the ROI, then lookup the class 
+            predictions= classifier.predict(roi)
+            pred = classifier.predict(roi)[0]
+            # Probabilities
+            angry = predictions[0][0] * 100
+            happy = predictions[0][1] * 100
+            neutral = predictions[0][2] * 100
+            sad = predictions[0][3] * 100
+            surprise = predictions[0][4] * 100
+            
+            # label probabilities
+            label_angry = "Angry: {0}%".format(round(angry,2))
+            label_happy = "Happy: {0}%".format(round(happy,2))
+            label_neutral = "Neutral: {0}%".format(round(neutral,2))
+            label_sad = "Sad: {0}%".format(round(sad,2))
+            label_surprise = "Surprise: {0}%".format(round(surprise,2))
+                       
+            # prediction label (actual)
+            primary_label = (f"Primary emotion: {class_labels[pred.argmax()]}")
+            inverse_label = (f"Inverse emotion: {class_labels[pred.argmin()]}")
+
+            # main logic ( NOTE: secondary emotion is not 100% someone fix it )
+            if primary_label != class_labels[2]:
+                secondary_label = (f"Secondary emotion: {class_labels[2]}")
+                if secondary_label != inverse_label:
+                    inverse_label = (f"Inverse emotion: {class_labels[pred.argmin()]}")
+            elif primary_label != class_labels[1]:
+                secondary_label = (f"Secondary emotion: {class_labels[1]}")
+                if secondary_label != inverse_label:
+                    inverse_label = class_labels[pred.argmin()]
+            elif primary_label != class_labels[0]:
+                secondary_label = (f"Secondary emotion: {class_labels[0]}")
+                if inverse_label != secondary_label:
+                    inverse_label = (f"Inverse emotion: {class_labels[pred.argmin()]}")
+            elif primary_label != class_labels[3]:
+                secondary_label = (f"Secondary emotion: {class_labels[3]}")
+                if inverse_label != secondary_label:
+                    inverse_label = (f"Inverse emotion: {class_labels[pred.argmin()]}")
+            elif primary_label != class_labels[4]:
+                secondary_label = (f"Secondary emotion: {class_labels[4]}")
+                if inverse_label != secondary_label:
+                    inverse_label = (f"Inverse emotion: {class_labels[pred.argmin()]}")
+            else: 
+                inverse_label = secondary_label
+
+            # label coordinates 
+            primary_label_position =(x,y-50)
+            secondary_label_position =(x,y-30)
+            inverse_label_position = (x,y-10)
+
+            # rectangle for predicted emotions
+            cv2.rectangle(frame,(x,y-65),
+                         (x+200,y-5),
+                         (180,0,180),cv2.FILLED)
+           
+            # probabilities data              
+            cv2.putText(frame,label_angry,(10,100),cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)
+            cv2.putText(frame,label_happy,(10,120),cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)
+            cv2.putText(frame,label_neutral,(10,140),cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)
+            cv2.putText(frame,label_sad,(10,160),cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)
+            cv2.putText(frame,label_surprise,(10,180),cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)
+            
+            # predicted emotions legend
+            cv2.putText(frame,primary_label,(10,40),cv2.FONT_HERSHEY_SIMPLEX,.5,(255,255,255),1)
+            cv2.putText(frame,secondary_label,(10,60),cv2.FONT_HERSHEY_SIMPLEX,.5,(255,255,255),1)
+            cv2.putText(frame,inverse_label,(10,80),cv2.FONT_HERSHEY_SIMPLEX,.5,(255,255,255),1)
+            # put text prediction to frame
+            cv2.putText(frame, primary_label, primary_label_position,
+                        cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)
+            cv2.putText(frame, secondary_label, secondary_label_position,
+                        cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)
+            cv2.putText(frame, inverse_label, inverse_label_position,
+                        cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)                       
+        else: 
+            cv2.putText(frame,'No Face Found',primary_label_position,cv2.FONT_HERSHEY_SIMPLEX,.5,(0,255,0),1)
+    
+    #show the text on the output window
+    cv2.imshow('Emotion Detector', frame)
+
+    # q key for exit
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        # Display exit message
+        print('[EXITING] Quaxis Corporation for Research/Innovation'+
+              '(c) 2020')
+        break
+    
+# Close webcam and close main program
+capture.release()
+cv2.destroyAllWindows()
