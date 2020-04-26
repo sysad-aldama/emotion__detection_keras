@@ -1,5 +1,7 @@
 # Latest changes.
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/40494c6c79594c0089d136544e37322a)](https://app.codacy.com/manual/quaxiscorp/emotion__detection_keras?utm_source=github.com&utm_medium=referral&utm_content=sysad-aldama/emotion__detection_keras&utm_campaign=Badge_Grade_Dashboard)
+
 **Added realtime_emotion_plotting.py.** Everything that multi_label_probability.py does PLUS realtime plotting (with legend)
 of all emotions over time (t) in seconds and each emotion is plotted with its float(int) values (emotion_angry,emotion_happy, etc...) 
 
