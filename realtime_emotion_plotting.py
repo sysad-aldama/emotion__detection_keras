@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.style as mpl
 import matplotlib.pyplot as plt
 import time
+import fancy_rectangle # Fancy rectangles
 
 mpl.use('dark_background')
 plt.rcParams['animation.html'] = 'jshtml'
@@ -43,7 +44,7 @@ capture = cv2.VideoCapture(0)
 primary_label,secondary_label,inverse_label = '','',''
 fig = plt.figure()
 ax= fig.add_subplot(111)
-ax.set_title("Emotion Probability - 5 Emotions")
+ax.set_title("Emotion Data Analysis - 5 Emotions")
 i = 0
 t = []
 emotion_neutral = []
@@ -57,17 +58,17 @@ while True:
     labels = []
     gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
     faces = face_classifier.detectMultiScale(gray, 1.3,5)  
-    #cv2.rectangle(frame,(0,0),(250,250),(0,0,0),cv2.FILLED)
-
-    # Fancy rectangle
-    fancy_rectangle.draw_border(frame,(x,y),(x+w,y+h),(255,255,0),1,1,20)
+    cv2.rectangle(frame,(0,0),(250,200),(30,30,30),cv2.FILLED)
     cv2.putText(frame,' S T A T I S T I C S ', (25,20),cv2.FONT_HERSHEY_SIMPLEX,.5,(255,255,255),1) 
     
     #Draw rectangle on face detected
     for (x,y,w,h) in faces:
-        cv2.rectangle(frame,(x,y),(x+w,y+h),(180,180,0),1)
+        #cv2.rectangle(frame,(x,y),(x+w,y+h),(180,180,0),1)
+        # Fancy rectangle
+        fancy_rectangle.draw_border(frame,(x,y),(x+w,y+h),(255,128,0),1,1,20)
         roi_gray = gray[y:y+h,x:x+w]
         roi_gray = cv2.resize(roi_gray,(48,48),interpolation=cv2.INTER_AREA)  
+        
         if np.sum([roi_gray]) !=0:
             roi = roi_gray.astype('float')/255.0
             roi = img_to_array(roi)
@@ -76,6 +77,7 @@ while True:
             # make prediction on the ROI, then lookup the class 
             predictions= classifier.predict(roi)
             pred = classifier.predict(roi)[0]
+            
             # Probabilities
             angry = predictions[0][0] * 100
             happy = predictions[0][1] * 100
@@ -115,10 +117,10 @@ while True:
                 secondary_label = (f"Secondary emotion: {class_labels[4]}")
                 if inverse_label != secondary_label:
                     inverse_label = (f"Inverse emotion: {class_labels[pred.argmin()]}")
-            else: 
+            else:
+                print('error')
                 inverse_label = secondary_label
-            
-             
+
             # label coordinates 
             primary_label_position =(x,y-50)
             secondary_label_position =(x,y-30)
@@ -127,7 +129,7 @@ while True:
             # rectangle for predicted neutral_emotion
             cv2.rectangle(frame,(x,y-65),
                          (x+200,y-5),
-                         (180,0,180),cv2.FILLED)
+                         (30,30,30),cv2.FILLED)
            
             # probabilities data              
             cv2.putText(frame,label_angry,(10,100),cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)
